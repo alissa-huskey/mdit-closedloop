@@ -164,6 +164,31 @@ def test_token_view_is_inline(md):
     assert view.is_inline()
 
 
+def test_token_view_starts_with_checkbox(md):
+    """
+    GIVEN: A Token object with content
+    WHEN: .starts_with_checkbox()
+    THEN: it should return True if the texts starts with "[ ]"
+          with any single character between the brackets
+    """
+    view = TokenView(Token("", "", 0, content="[-] pending task"))
+
+    assert view.starts_with_checkbox()
+    assert view.mark == "-"
+
+
+def test_token_view_is_todo(md):
+    """
+    GIVEN: A TokenView object with an inline Token that contains a checkbox
+    WHEN: .is_todo() is called
+    THEN: it should return True
+    """
+    tokens = TokenView.from_tokens(md.parse("* [x] I did it"))
+    token = tokens[3]
+
+    assert token.is_todo()
+
+
 #  def test_token_view_from_():
 #      """
 #      GIVEN: ...

@@ -1,5 +1,6 @@
 """Provides the TokenView class."""
 
+from re import compile as re_compile
 from functools import partialmethod
 
 from attr import attr, hasattrs
@@ -18,6 +19,14 @@ class TokenView(Object):
     parent: Token = None
     index: int = None
     children: list = None
+    mark: str = None
+
+    # Regex string to match a whitespace character, as specified in
+    # https://github.github.com/gfm/#whitespace-character
+    # (spec version 0.29-gfm (2019-04-06))
+    _WHITESPACE_RE = r"[ \t\n\v\f\r]"
+
+    _CHECKBOX_MATCHER = re_compile(fr"\[(.)]{_WHITESPACE_RE}+")
 
     @classmethod
     def from_tokens(cls, tokens: list[Token]) -> list["Token"]:
@@ -55,23 +64,6 @@ class TokenView(Object):
             result.append(view)
         return result
 
-    def _token_getter(self, name):
-        """Get the attribute from the Token object."""
-        if not self.token:
-            return
-        return getattr(self.token, name)
-
-    nesting = partialproperty(_token_getter, name="nesting")
-    type = partialproperty(_token_getter, name="type")
-
-    def _is_type(self, _type: str) -> bool:
-        """Return True if the token is the passed type."""
-        return self.token.type == _type
-
-    is_inline = partialmethod(_is_type, _type="inline")
-    is_paragraph = partialmethod(_is_type, _type="paragraph_open")
-    is_list_item = partialmethod(_is_type, _type="list_item_open")
-
     def __init__(self, *args, **kwargs):
         """Instantiate the object."""
         token = kwargs.pop("token", None)
@@ -89,9 +81,42 @@ class TokenView(Object):
         self.token = token
         self.index = index
 
+    def _token_getter(self, name):
+        """Get the attribute from the Token object."""
+        if not self.token:
+            return
+        return getattr(self.token, name)
+
+    nesting = partialproperty(_token_getter, name="nesting")
+    type = partialproperty(_token_getter, name="type")
+
+    def _is_type(self, _type: str) -> bool:
+        """Return True if the token is the passed type."""
+        return self.token.type == _type
+
+    is_inline = partialmethod(_is_type, _type="inline")
+    is_paragraph = partialmethod(_is_type, _type="paragraph_open")
+    is_list_item = partialmethod(_is_type, _type="list_item_open")
+
     @attr(method="setter")
     def token(self, value):
         """Set the token and create children."""
         self._token = value
         if value and value.children:
             self.children = [self.__class__(c) for c in value.children]
+
+    def starts_with_checkbox(self) -> bool:
+        """Return True if the token text content stars with a checkbox."""
+        found = self._CHECKBOX_MATCHER.match(self.token.content)
+        if found:
+            self.mark = found.group(1)
+        return bool(found)
+
+    def is_todo(self) -> bool:
+        """Return True if this is a todo item."""
+        return (
+            self.is_inline()
+            and self.parent.is_paragraph()
+            and self.parent.parent.is_list_item()
+            and self.starts_with_checkbox()
+        )

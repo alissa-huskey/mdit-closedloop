@@ -8,44 +8,20 @@ def test_parser():
     assert Parser()
 
 
-def test_parser_starts_with_checkbox(md):
-    """
-    GIVEN: A Parser object
-    WHEN: .starts_with_checkbox() is called with text
-    THEN: it should return True if the texts starts with "[ ]"
-          with any single character between the brackets
-    """
-    tokens = md.parse("[-] pending task")
-    parser = Parser()
-
-    assert parser.starts_with_checkbox(TokenView(tokens[1]))
-
-
-def test_parser_is_todo_token(md):
-    """
-    GIVEN: A Parser object
-    AND: A list item that contains a checkbox
-    WHEN: .is_list_token() is called with the index of the inline token
-    THEN: it should return True
-    """
-    tokens = TokenView.from_tokens(md.parse("* [x] I did it"))
-    parser = Parser()
-
-    assert parser.is_todo_token((tokens[3]))
-
-
 def test_parser_todoify(md):
     """
     GIVEN: A Parser object and an inline token
     WHEN: .todoify() is called with an inline token
     THEN: it should replace the checkbox with a marker token
     """
-    tokens = md.parse("* [x] I did it")
-    token = tokens[3]
-    children = token.children
+    tokens = TokenView.from_tokens(md.parse("* [x] I did it"))
+    view = tokens[3]
+    view.is_todo()   # needed here because that sets the mark; should refactor
 
-    parser = Parser(tokens)
-    parser.todoify(token)
+    parser = Parser()
+    parser.todoify(view)
+
+    children = view.token.children
 
     assert len(children) == 4
     assert children[0].type == "checkbox_open"
