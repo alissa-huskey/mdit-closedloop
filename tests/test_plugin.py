@@ -1,0 +1,34 @@
+from markdown_it import MarkdownIt
+
+from mdit_closedloop.plugin import closedloop_plugin
+
+bp = breakpoint
+
+
+def test_plugin():
+    md = MarkdownIt().use(closedloop_plugin)
+    tokens = md.parse("* [x] completed task")
+
+    assert (
+        tokens[0].type == "bullet_list_open"
+        and tokens[0].attrGet("class") == "contains-task-list"
+    )
+
+    assert (
+        tokens[1].type == "list_item_open"
+        and tokens[1].attrGet("class") == "task-list-item"
+    )
+
+    assert (
+        tokens[3].type == "inline"
+        and len(tokens[3].children) == 4
+    )
+
+    children = tokens[3].children
+    assert children[0].type == "checkbox_open"
+    assert children[1].type == "checkbox_mark"
+    assert children[2].type == "checkbox_close"
+    assert children[3].type == "text"
+
+    assert children[1].content == "x"
+    assert children[3].content == "completed task"

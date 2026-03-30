@@ -1,15 +1,6 @@
-import pytest
-from markdown_it import MarkdownIt
-
 from mdit_closedloop.parser import Parser
 
 bp = breakpoint
-
-
-@pytest.fixture
-def md() -> MarkdownIt:
-    """Return a MarkdownIt parser object."""
-    return MarkdownIt()
 
 
 def test_parser():
