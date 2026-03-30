@@ -1,5 +1,5 @@
 from mdit_closedloop.parser import Parser
-from mdit_closedloop.tokens.token import Token
+from mdit_closedloop.tokens.token_view import TokenView
 
 bp = breakpoint
 
@@ -28,7 +28,7 @@ def test_parser_is_todo_token(md):
     WHEN: .is_list_token() is called with the index of the inline token
     THEN: it should return True
     """
-    tokens = Token.from_tokens(md.parse("* [x] I did it"))
+    tokens = TokenView.from_tokens(md.parse("* [x] I did it"))
     parser = Parser(tokens)
 
     assert parser.is_todo_token(tokens[3])

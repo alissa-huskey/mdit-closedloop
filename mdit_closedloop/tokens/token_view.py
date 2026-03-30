@@ -1,22 +1,22 @@
-"""Provides the Token base class, inherited from markdown_it's Token."""
+"""Provides the TokenView class."""
 
 from functools import partialmethod
 from mdit_closedloop.dict import Dict
 
-from markdown_it.token import Token as BaseToken
+from markdown_it.token import Token
 
 bp = breakpoint
 
 
-class Token(BaseToken):
+class TokenView(Token):
     """Modified token base class."""
 
-    parent: BaseToken = None
+    parent: Token = None
     index: int = None
 
     @classmethod
-    def from_tokens(cls, tokens: list[BaseToken]) -> list["Token"]:
-        """Convert a list of BaseToken objects to Token objects.
+    def from_tokens(cls, tokens: list[Token]) -> list["Token"]:
+        """Convert a list of Token objects to Token objects.
 
         Also assign the index and parent attributes.
         """
@@ -51,7 +51,7 @@ class Token(BaseToken):
         return result
 
     @classmethod
-    def from_token(cls, source: BaseToken, idx: int = None) -> "Token":
+    def from_token(cls, source: Token, idx: int = None) -> "Token":
         """Return an instance of this class that is a copy of source."""
         token = cls.from_dict(source.as_dict())
         token.meta = Dict(token.meta)

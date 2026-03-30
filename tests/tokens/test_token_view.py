@@ -1,54 +1,54 @@
-from markdown_it.token import Token as MDToken
+from markdown_it.token import Token
 
-from mdit_closedloop.tokens.token import Token
+from mdit_closedloop.tokens.token_view import TokenView
 
 bp = breakpoint
 
 
 def test_token():
-    assert Token("test", "", 0)
+    assert TokenView("test", "", 0)
 
 
 def test_token_from_token():
     """
-    GIVEN: A MDToken object
-    WHEN: Token.from_token() is called with that token
-    THEN: A Token object is created with all of the values of the MDToken
+    GIVEN: A Token object
+    WHEN: TokenView.from_token() is called with that token
+    THEN: A TokenView object is created with all of the values of the Token
     """
-    source = MDToken(
+    token = Token(
         "test_token",
         "",
         0,
-        children=[MDToken("child_token", "", 0)]
+        children=[Token("child_token", "", 0)]
     )
 
-    token = Token.from_token(source)
+    view = TokenView.from_token(token)
 
     # make sure the index key was added to meta
-    assert "index" in token.meta
-    assert "index" in token.children[0].meta
+    assert "index" in view.meta
+    assert "index" in view.children[0].meta
 
     # but now remove it so we can compare the tokens
-    token.meta = {}
-    token.children[0].meta = {}
+    view.meta = {}
+    view.children[0].meta = {}
 
-    assert token.as_dict() == source.as_dict()
-    assert token.children[0].parent == token
+    assert view.as_dict() == token.as_dict()
+    assert view.children[0].parent == view
 
 
 def test_token_from_tokens(md):
     """
-    GIVEN: A list of MDToken object
-    WHEN: Token.from_tokens() is called with that list
-    THEN: it should returl a list of Token objects
+    GIVEN: A list of Token object
+    WHEN: TokenView.from_tokens() is called with that list
+    THEN: it should returl a list of TokenView objects
     AND: each object should have the parent set
     AND: each object should have the index set
     """
     source_tokens = md.parse("* a list item")
 
-    tokens = Token.from_tokens(source_tokens)
+    tokens = TokenView.from_tokens(source_tokens)
 
-    assert all([isinstance(t, Token) for t in tokens])
+    assert all([isinstance(t, TokenView) for t in tokens])
 
     assert tokens[0].meta.index == 0
     assert tokens[1].meta.index == 1
@@ -69,9 +69,9 @@ def test_token_from_tokens(md):
 
 def test_token_from_tokens_complex(md):
     """
-    GIVEN: A list of MDToken object
-    WHEN: Token.from_tokens() is called with that list
-    THEN: it should returl a list of Token objects
+    GIVEN: A list of Token object
+    WHEN: TokenView.from_tokens() is called with that list
+    THEN: it should returl a list of TokenView objects
     AND: each object should have the parent set
     AND: each object should have the index set
     """
@@ -89,7 +89,7 @@ def test_token_from_tokens_complex(md):
     * subitem C.3
     """)
 
-    tokens = Token.from_tokens(source_tokens)
+    tokens = TokenView.from_tokens(source_tokens)
 
     # the only thing needed here is the index and parent_index
     # the rest of it is just for reference, so I can make
@@ -106,38 +106,38 @@ def test_token_from_tokens_complex(md):
         36: 35,   # list_item_opne -- sublist list item "sublist C.1"
     }
 
-    assert all([isinstance(t, Token) for t in tokens])
+    assert all([isinstance(t, TokenView) for t in tokens])
 
     for token_id, parent_index in mapping.items():
-        token = tokens[token_id]
+        view = tokens[token_id]
 
         if not parent_index:
-            assert token.parent is None
+            assert view.parent is None
             continue
 
         expected_parent = tokens[parent_index]
-        assert token.parent == expected_parent
+        assert view.parent == expected_parent
 
 
 def test_token__is_type(md):
     """
-    GIVEN: A Token object
+    GIVEN: A TokenView object
     WHEN: ._is_type() is called
     THEN: it should return True if it is that type
     """
-    token = Token("paragraph_open", "", 0)
+    view = TokenView("paragraph_open", "", 0)
 
-    assert token._is_type("paragraph_open")
+    assert view._is_type("paragraph_open")
 
 
 def test_token_is_inline(md):
     """
-    GIVEN: A Token object
+    GIVEN: A TokenView object
     WHEN: .is_inline() is called
     THEN: it should return True if it its type is "inline"
     """
-    token = Token("inline", "", 0)
-    assert token.is_inline()
+    view = TokenView("inline", "", 0)
+    assert view.is_inline()
 
 
 #  def test_token_from_():
