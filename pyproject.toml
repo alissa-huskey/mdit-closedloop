@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "markdown-it-closedloop"
+version = "0.1.0"
+description = "Markdown-it plugin for closedloop."
+authors = ["Alissa Huskey <alissa.huskey@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+markdown-it-py = "^4.0.0"
+more-itertools = "^10.8.0"
+
+[tool.poetry.group.dev.dependencies]
+pynvim = "*"
+pytest = "*"
+pdbpp = "*"
+ipython = "*"
+isort = "*"
+pylama = "*"
+pylint = "*"
+black = "*"
+pycodestyle = "*"
+flake8 = "*"
+flake8-black = "*"
+flake8-docstrings = "*"
+flake8-isort = "*"
+
+[tool.pytest.ini_options]
+addopts = "-vvx"
+markers = ["todo"]
+
+[tool.black]
+line-length = "88"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
