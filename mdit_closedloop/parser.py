@@ -3,8 +3,9 @@
 import re
 from functools import partialmethod
 
-from markdown_it.token import Token
 from more_itertools import first
+
+from mdit_closedloop.tokens.token import Token
 
 bp = breakpoint
 
@@ -16,7 +17,8 @@ class Parser():
 
     def __init__(self, tokens: list[Token] = None):
         """Instantiate the object."""
-        self.tokens = tokens
+        self._tokens = tokens
+        self.tokens = Token.from_tokens(tokens or [])
 
     def _is_token_type(self, token: Token, _type: str) -> bool:
         """Return True if the token is the passed type."""
@@ -30,12 +32,12 @@ class Parser():
         """Do the thing."""
         for i, token in enumerate(self.tokens[2:-1], 2):
             if self.is_todo_token(i):
-                self.todoify(self.tokens[i])
-                self.tokens[i - 2].attrSet(
+                self.todoify(self._tokens[i])
+                self._tokens[i - 2].attrSet(
                     "class",
                     "task-list-item"
                 )
-                self.ancestor(i - 2).attrSet(
+                self._tokens[self.ancestor(i - 2).index].attrSet(
                     "class", "contains-task-list"
                 )
 
