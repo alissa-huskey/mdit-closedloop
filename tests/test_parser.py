@@ -1,34 +1,11 @@
 from mdit_closedloop.parser import Parser
+from mdit_closedloop.tokens.token import Token
 
 bp = breakpoint
 
 
 def test_parser():
     assert Parser()
-
-
-def test_parser__is_token_type(md):
-    """
-    GIVEN: A Parser object
-    WHEN: ._is_token_type() is called with a Token
-    THEN: it should return True if it is that type
-    """
-    tokens = md.parse("hello")
-
-    parser = Parser()
-    assert parser._is_token_type(tokens[0], "paragraph_open")
-
-
-def test_parser_is_inline(md):
-    """
-    GIVEN: A Parser object
-    WHEN: .is_inline() is called with a Token
-    THEN: it should return True if it its type is "inline"
-    """
-    tokens = md.parse("hello")
-
-    parser = Parser()
-    assert parser.is_inline(tokens[1])
 
 
 def test_parser_starts_with_checkbox(md):
@@ -51,23 +28,10 @@ def test_parser_is_todo_token(md):
     WHEN: .is_list_token() is called with the index of the inline token
     THEN: it should return True
     """
-    tokens = md.parse("* [x] I did it")
+    tokens = Token.from_tokens(md.parse("* [x] I did it"))
     parser = Parser(tokens)
 
-    assert parser.is_todo_token(3)
-
-
-def test_parser_ancestor(md):
-    """
-    GIVEN: A Parser object with tokens
-    WHEN: .ancestor() is called with an ancestor, and the number of levels to
-          traverse
-    THEN: it should return the index of the token that many levels up the tree
-    """
-    tokens = md.parse("* [x] I did it")
-    parser = Parser(tokens)
-
-    assert parser.ancestor(3).level == 2
+    assert parser.is_todo_token(tokens[3])
 
 
 def test_parser_todoify(md):

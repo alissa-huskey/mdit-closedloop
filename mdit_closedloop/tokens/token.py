@@ -1,27 +1,62 @@
 """Provides the Token base class, inherited from markdown_it's Token."""
 
-from markdown_it.token import Token as MDToken
 from functools import partialmethod
+from mdit_closedloop.dict import Dict
+
+from markdown_it.token import Token as BaseToken
 
 bp = breakpoint
 
 
-class Token(MDToken):
+class Token(BaseToken):
     """Modified token base class."""
 
-    parent: MDToken = None
+    parent: BaseToken = None
     index: int = None
 
     @classmethod
-    def from_tokens(cls, tokens: list[MDToken]) -> list["Token"]:
-        """Convert a list of MDToken objects to Token objects."""
-        return [cls.from_token(t, i) for i, t in enumerate(tokens)]
+    def from_tokens(cls, tokens: list[BaseToken]) -> list["Token"]:
+        """Convert a list of BaseToken objects to Token objects.
+
+        Also assign the index and parent attributes.
+        """
+        stack: list[Token] = []
+        result: list[Token] = []
+
+        for i, t in enumerate(tokens):
+            # create the new token
+            token = cls.from_token(t, i)
+
+            # close token -- pop the open token off of the stack
+            if token.nesting == -1:
+                if not stack:
+                    raise ValueError(f"Unexpected closing token: {token.type}")
+                open_token = stack.pop()
+
+                # checks to see that open_token is `type`_open and this token
+                # is `type`_closed
+                if (expected := open_token.type[:-5]) != token.type[:-6]:
+                    raise ValueError(
+                        f"Mismatched closing token: got {token.type}, "
+                        f"expected {expected}_close"
+                    )
+
+            token.parent = stack[-1] if stack else None
+
+            # open token -- add the token to the stack
+            if token.nesting == 1:
+                stack.append(token)
+
+            result.append(token)
+        return result
 
     @classmethod
-    def from_token(cls, source: MDToken, idx: int = None) -> "Token":
+    def from_token(cls, source: BaseToken, idx: int = None) -> "Token":
         """Return an instance of this class that is a copy of source."""
         token = cls.from_dict(source.as_dict())
-        token.index = idx
+        token.meta = Dict(token.meta)
+        token.meta.index = idx
+
         if token.children:
             for i, c in enumerate(token.children):
                 child = cls.from_token(c)

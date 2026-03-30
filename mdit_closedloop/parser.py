@@ -1,9 +1,6 @@
 """Provides the Parser class."""
 
 import re
-from functools import partialmethod
-
-from more_itertools import first
 
 from mdit_closedloop.tokens.token import Token
 
@@ -20,24 +17,19 @@ class Parser():
         self._tokens = tokens
         self.tokens = Token.from_tokens(tokens or [])
 
-    def _is_token_type(self, token: Token, _type: str) -> bool:
-        """Return True if the token is the passed type."""
-        return token.type == _type
-
-    is_inline = partialmethod(_is_token_type, _type="inline")
-    is_paragraph = partialmethod(_is_token_type, _type="paragraph_open")
-    is_list_item = partialmethod(_is_token_type, _type="list_item_open")
-
     def parse(self):
         """Do the thing."""
-        for i, token in enumerate(self.tokens[2:-1], 2):
-            if self.is_todo_token(i):
-                self.todoify(self._tokens[i])
-                self._tokens[i - 2].attrSet(
+        for token in self.tokens[2:-1]:
+            if self.is_todo_token(token):
+                self.todoify(self._tokens[token.meta.index])
+                li = token.parent.parent
+                ul = li.parent
+
+                self._tokens[li.meta.index].attrSet(
                     "class",
                     "task-list-item"
                 )
-                self._tokens[self.ancestor(i - 2).index].attrSet(
+                self._tokens[ul.meta.index].attrSet(
                     "class", "contains-task-list"
                 )
 
@@ -59,25 +51,12 @@ class Parser():
         token.children.insert(1, self.checkbox_mark(char))
         token.children.insert(2, self.end_checkbox())
 
-    def ancestor(self, index: int, levels: int = -1) -> Token:
-        """Return the ancestor the specified number of levels up."""
-        target = self.tokens[index].level + levels
-        return first(
-            [
-                token
-                for i in range(1, index + 1)
-                if (token := self.tokens[index - i]).level == target
-            ],
-            -1
-        )
-
-    def is_todo_token(self, index: int) -> bool:
+    def is_todo_token(self, token: Token) -> bool:
         """Return True if this is a todo item."""
-        token = self.tokens[index]
         return (
-            self.is_inline(token)
-            and self.is_paragraph(self.ancestor(index))
-            and self.is_list_item(self.ancestor(index, -2))
+            token.is_inline()
+            and token.parent.is_paragraph()
+            and token.parent.parent.is_list_item()
             and self.starts_with_checkbox(token)
         )
 
