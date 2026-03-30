@@ -2,6 +2,8 @@
 
 import re
 
+from markdown_it.token import Token
+
 from mdit_closedloop.tokens.token_view import TokenView
 
 bp = breakpoint
@@ -14,22 +16,21 @@ class Parser():
 
     def __init__(self, tokens: list[TokenView] = None):
         """Instantiate the object."""
-        self._tokens = tokens
         self.tokens = TokenView.from_tokens(tokens or [])
 
     def parse(self):
         """Do the thing."""
-        for token in self.tokens[2:-1]:
-            if self.is_todo_token(token):
-                self.todoify(self._tokens[token.meta.index])
-                li = token.parent.parent
+        for view in self.tokens[2:-1]:
+            if self.is_todo_token(view):
+                self.todoify(view.token)
+                li = view.parent.parent
                 ul = li.parent
 
-                self._tokens[li.meta.index].attrSet(
+                li.token.attrSet(
                     "class",
                     "task-list-item"
                 )
-                self._tokens[ul.meta.index].attrSet(
+                ul.token.attrSet(
                     "class", "contains-task-list"
                 )
 
@@ -60,24 +61,24 @@ class Parser():
             and self.starts_with_checkbox(token)
         )
 
-    def starts_with_checkbox(self, token: TokenView) -> bool:
+    def starts_with_checkbox(self, view: TokenView) -> bool:
         """Return True if the token text content stars with a checkbox."""
-        return re.match(rf"\[.]{self._GFM_WHITESPACE_RE}+", token.content) is not None
+        return bool(re.match(rf"\[.]{self._GFM_WHITESPACE_RE}+", view.token.content))
 
-    def begin_checkbox(self) -> TokenView:
-        """Return a checkbox_open TokenView."""
-        token = TokenView("checkbox_open", "", 0)
+    def begin_checkbox(self) -> Token:
+        """Return a checkbox_open Token."""
+        token = Token("checkbox_open", "", 0)
         token.content = "["
         return token
 
-    def checkbox_mark(self, mark: str) -> TokenView:
-        """Return a checkbox_mark TokenView."""
-        token = TokenView("checkbox_mark", "", 0)
+    def checkbox_mark(self, mark: str) -> Token:
+        """Return a checkbox_mark Token."""
+        token = Token("checkbox_mark", "", 0)
         token.content = mark
         return token
 
-    def end_checkbox(self) -> TokenView:
-        """Return a checkbox_close TokenView."""
-        token = TokenView("checkbox_close", "", 0)
+    def end_checkbox(self) -> Token:
+        """Return a checkbox_close Token."""
+        token = Token("checkbox_close", "", 0)
         token.content = "]"
         return token

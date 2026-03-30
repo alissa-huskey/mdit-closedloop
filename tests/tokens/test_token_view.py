@@ -5,38 +5,62 @@ from mdit_closedloop.tokens.token_view import TokenView
 bp = breakpoint
 
 
-def test_token():
-    assert TokenView("test", "", 0)
-
-
-def test_token_from_token():
+def test_token_view_with_args():
     """
-    GIVEN: A Token object
-    WHEN: TokenView.from_token() is called with that token
-    THEN: A TokenView object is created with all of the values of the Token
+    WHEN: A TokenView object is instantiated with non-Token arguments
+    THEN: a token should be created and assigned to .token
+    """
+    view = TokenView("test", "", 0)
+
+    assert view.token
+    assert view.token.type == "test"
+
+
+def test_token_view_with_token():
+    """
+    WHEN: A TokenView object is instantiated with a single arg that is a Token
+    THEN: the token should be assigned to .token
+    AND:
+    """
+    token = Token("test", "", 0)
+    view = TokenView(token)
+
+    assert view.token == token
+
+
+def test_token_view_with_token_and_index():
+    """
+    WHEN: A TokenView object is instantiated with a Token and an int
+    THEN: the token should be assigned to .token
+    AND: the int should be assigned to .index
+    AND:
+    """
+    token = Token("test", "", 0)
+    view = TokenView(token, 5)
+
+    assert view.token == token
+    assert view.index == 5
+
+
+def test_token_view_with_token_and_children():
+    """
+    WHEN: TokenView() is instantiated with a Token object that has children
+    THEN: all of its children should be TokenView objects
     """
     token = Token(
-        "test_token",
+        "test_token_view",
         "",
         0,
         children=[Token("child_token", "", 0)]
     )
 
-    view = TokenView.from_token(token)
+    view = TokenView(token)
 
-    # make sure the index key was added to meta
-    assert "index" in view.meta
-    assert "index" in view.children[0].meta
-
-    # but now remove it so we can compare the tokens
-    view.meta = {}
-    view.children[0].meta = {}
-
-    assert view.as_dict() == token.as_dict()
-    assert view.children[0].parent == view
+    assert view.token == token
+    assert view.children and isinstance(view.children[0], TokenView)
 
 
-def test_token_from_tokens(md):
+def test_token_view_from_tokens(md):
     """
     GIVEN: A list of Token object
     WHEN: TokenView.from_tokens() is called with that list
@@ -50,13 +74,13 @@ def test_token_from_tokens(md):
 
     assert all([isinstance(t, TokenView) for t in tokens])
 
-    assert tokens[0].meta.index == 0
-    assert tokens[1].meta.index == 1
-    assert tokens[2].meta.index == 2
-    assert tokens[3].meta.index == 3
-    assert tokens[4].meta.index == 4
-    assert tokens[5].meta.index == 5
-    assert tokens[6].meta.index == 6
+    assert tokens[0].index == 0
+    assert tokens[1].index == 1
+    assert tokens[2].index == 2
+    assert tokens[3].index == 3
+    assert tokens[4].index == 4
+    assert tokens[5].index == 5
+    assert tokens[6].index == 6
 
     assert tokens[0].type == "bullet_list_open" and tokens[0].parent is None
     assert tokens[1].type == "list_item_open" and tokens[1].parent == tokens[0]
@@ -67,7 +91,7 @@ def test_token_from_tokens(md):
     assert tokens[6].type == "bullet_list_close" and tokens[6].parent is None
 
 
-def test_token_from_tokens_complex(md):
+def test_token_view_from_tokens_complex(md):
     """
     GIVEN: A list of Token object
     WHEN: TokenView.from_tokens() is called with that list
@@ -119,7 +143,7 @@ def test_token_from_tokens_complex(md):
         assert view.parent == expected_parent
 
 
-def test_token__is_type(md):
+def test_token_view__is_type(md):
     """
     GIVEN: A TokenView object
     WHEN: ._is_type() is called
@@ -130,7 +154,7 @@ def test_token__is_type(md):
     assert view._is_type("paragraph_open")
 
 
-def test_token_is_inline(md):
+def test_token_view_is_inline(md):
     """
     GIVEN: A TokenView object
     WHEN: .is_inline() is called
@@ -140,7 +164,7 @@ def test_token_is_inline(md):
     assert view.is_inline()
 
 
-#  def test_token_from_():
+#  def test_token_view_from_():
 #      """
 #      GIVEN: ...
 #      WHEN: ...

@@ -1,18 +1,23 @@
 """Provides the TokenView class."""
 
 from functools import partialmethod
-from mdit_closedloop.dict import Dict
 
+from attr import attr, hasattrs
 from markdown_it.token import Token
+
+from mdit_closedloop.object import Object
+from mdit_closedloop.partialproperty import partialproperty
 
 bp = breakpoint
 
 
-class TokenView(Token):
-    """Modified token base class."""
+@hasattrs
+class TokenView(Object):
+    """Token wrapper."""
 
     parent: Token = None
     index: int = None
+    children: list = None
 
     @classmethod
     def from_tokens(cls, tokens: list[Token]) -> list["Token"]:
@@ -23,52 +28,70 @@ class TokenView(Token):
         stack: list[Token] = []
         result: list[Token] = []
 
-        for i, t in enumerate(tokens):
-            # create the new token
-            token = cls.from_token(t, i)
+        for i, token in enumerate(tokens):
+            # create the new view object
+            view = cls(token, i)
 
             # close token -- pop the open token off of the stack
-            if token.nesting == -1:
+            if view.nesting == -1:
                 if not stack:
                     raise ValueError(f"Unexpected closing token: {token.type}")
                 open_token = stack.pop()
 
                 # checks to see that open_token is `type`_open and this token
                 # is `type`_closed
-                if (expected := open_token.type[:-5]) != token.type[:-6]:
+                if (expected := open_token.type[:-5]) != view.type[:-6]:
                     raise ValueError(
-                        f"Mismatched closing token: got {token.type}, "
+                        f"Mismatched closing token: got {view.type}, "
                         f"expected {expected}_close"
                     )
 
-            token.parent = stack[-1] if stack else None
+            view.parent = stack[-1] if stack else None
 
             # open token -- add the token to the stack
-            if token.nesting == 1:
-                stack.append(token)
+            if view.nesting == 1:
+                stack.append(view)
 
-            result.append(token)
+            result.append(view)
         return result
 
-    @classmethod
-    def from_token(cls, source: Token, idx: int = None) -> "Token":
-        """Return an instance of this class that is a copy of source."""
-        token = cls.from_dict(source.as_dict())
-        token.meta = Dict(token.meta)
-        token.meta.index = idx
+    def _token_getter(self, name):
+        """Get the attribute from the Token object."""
+        if not self.token:
+            return
+        return getattr(self.token, name)
 
-        if token.children:
-            for i, c in enumerate(token.children):
-                child = cls.from_token(c)
-                child.parent = token
-                child.index = i
-                token.children[i] = child
-        return token
+    nesting = partialproperty(_token_getter, name="nesting")
+    type = partialproperty(_token_getter, name="type")
 
     def _is_type(self, _type: str) -> bool:
         """Return True if the token is the passed type."""
-        return self.type == _type
+        return self.token.type == _type
 
     is_inline = partialmethod(_is_type, _type="inline")
     is_paragraph = partialmethod(_is_type, _type="paragraph_open")
     is_list_item = partialmethod(_is_type, _type="list_item_open")
+
+    def __init__(self, *args, **kwargs):
+        """Instantiate the object."""
+        token = kwargs.pop("token", None)
+        index = kwargs.pop("index", None)
+
+        if args and not token and isinstance(args[0], Token):
+            token = args[0]
+
+        if not index and len(args) == 2 and isinstance(args[1], int):
+            index = args[1]
+
+        if not token and len(args) >= 3:
+            token = Token(*args)
+
+        self.token = token
+        self.index = index
+
+    @attr(method="setter")
+    def token(self, value):
+        """Set the token and create children."""
+        self._token = value
+        if value and value.children:
+            self.children = [self.__class__(c) for c in value.children]

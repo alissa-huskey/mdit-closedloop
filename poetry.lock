@@ -27,6 +27,24 @@ astroid = ["astroid (>=2,<5)"]
 test = ["astroid (>=2,<5)", "pytest (<9.0)", "pytest-cov", "pytest-xdist"]
 
 [[package]]
+name = "attr"
+version = "0.1.0"
+description = "@property, but with less gruntwork"
+optional = false
+python-versions = "^3.11"
+files = []
+develop = false
+
+[package.dependencies]
+more-itertools = "^10.8.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/alissa-huskey/attr.git"
+reference = "HEAD"
+resolved_reference = "0f2012d0515fcdbdf479ca7cd5d216460f70efd7"
+
+[[package]]
 name = "black"
 version = "26.3.1"
 description = "The uncompromising code formatter."
@@ -990,4 +1008,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "127d864d283d37f81941a63c70239bd071de986bd60381f94da7e50398f0c22a"
+content-hash = "a3f6ca38302d7852edb863020c79df0383e2652f00f91a6542a46f95c38b6e28"

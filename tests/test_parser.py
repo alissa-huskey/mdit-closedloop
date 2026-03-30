@@ -18,7 +18,7 @@ def test_parser_starts_with_checkbox(md):
     tokens = md.parse("[-] pending task")
     parser = Parser()
 
-    assert parser.starts_with_checkbox(tokens[1])
+    assert parser.starts_with_checkbox(TokenView(tokens[1]))
 
 
 def test_parser_is_todo_token(md):
@@ -29,9 +29,9 @@ def test_parser_is_todo_token(md):
     THEN: it should return True
     """
     tokens = TokenView.from_tokens(md.parse("* [x] I did it"))
-    parser = Parser(tokens)
+    parser = Parser()
 
-    assert parser.is_todo_token(tokens[3])
+    assert parser.is_todo_token((tokens[3]))
 
 
 def test_parser_todoify(md):

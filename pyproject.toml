@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 markdown-it-py = "^4.0.0"
 more-itertools = "^10.8.0"
+attr = { git = "https://github.com/alissa-huskey/attr.git" }
 
 [tool.poetry.group.dev.dependencies]
 pynvim = "*"
