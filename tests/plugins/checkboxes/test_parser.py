@@ -1,14 +1,14 @@
-from mdit_closedloop.parser import Parser
-from mdit_closedloop.tokens.token_view import TokenView
+from mdit_closedloop.plugins.checkboxes.parser import Parser
+from mdit_closedloop.plugins.checkboxes.token_view import TokenView
 
 bp = breakpoint
 
 
-def test_parser():
+def test_checkboxes_parser():
     assert Parser()
 
 
-def test_parser_todoify(md):
+def test_checkboxes_parser_todoify(md):
     """
     GIVEN: A Parser object and an inline token
     WHEN: .todoify() is called with an inline token
@@ -33,7 +33,7 @@ def test_parser_todoify(md):
     assert children[3].content == "I did it"
 
 
-def test_parser_begin_checkbox():
+def test_checkboxes_parser_begin_checkbox():
     """
     GIVEN: A Parser object
     WHEN: .begin_checkbox() is called
@@ -46,7 +46,7 @@ def test_parser_begin_checkbox():
     assert token.content == "["
 
 
-def test_parser_end_checkbox():
+def test_checkboxes_parser_end_checkbox():
     """
     GIVEN: A Parser object
     WHEN: .end_checkbox() is called
@@ -59,7 +59,7 @@ def test_parser_end_checkbox():
     assert token.content == "]"
 
 
-def test_parser_parse(md):
+def test_checkboxes_parser_parse(md):
     """
     GIVEN: A Parser object and
     AND: a list of Tokens parsed from markdown
@@ -100,7 +100,7 @@ def test_parser_parse(md):
     assert children[3].content == "I did it"
 
 
-#  def test_parser_():
+#  def test_checkboxes_parser_():
 #      """
 #      GIVEN: ...
 #      WHEN: ...

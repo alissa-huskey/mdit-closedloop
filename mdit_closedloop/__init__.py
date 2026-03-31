@@ -1,7 +1,5 @@
-"""markdown-it-closedloop - Parse markdown for closedloop.
+"""markdown-it-closedloop - Plugins to parse markedown for closedloop."""
 
-- Builds checkbox tokens for list items starting with [n]
-  where n is any single character
-"""
+from mdit_closedloop.plugins import checkboxes_plugin, labels_plugin
 
-from mdit_closedloop.plugin import closedloop_plugin
+ALL = [checkboxes_plugin, labels_plugin]

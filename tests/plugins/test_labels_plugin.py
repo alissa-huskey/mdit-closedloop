@@ -2,9 +2,9 @@ import pytest
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
-from mdit_closedloop.labels import (area_rule, context_rule, labels_plugin,
-                                    project_rule)
 from mdit_closedloop.object import Object as Stub
+from mdit_closedloop.plugins.labels.plugin import (area_rule, context_rule,
+                                                   labels_plugin, project_rule)
 
 bp = breakpoint
 

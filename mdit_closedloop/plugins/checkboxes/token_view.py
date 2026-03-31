@@ -14,7 +14,12 @@ bp = breakpoint
 
 @hasattrs
 class TokenView(Object):
-    """Token wrapper."""
+    """Token wrapper.
+
+    Encapsulates token-specific logic, such as identifying which tokens match
+    qualify as todos and creating specifying the parent relationship for all
+    tokens.
+    """
 
     parent: Token = None
     index: int = None

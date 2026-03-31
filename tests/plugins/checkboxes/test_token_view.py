@@ -1,6 +1,6 @@
 from markdown_it.token import Token
 
-from mdit_closedloop.tokens.token_view import TokenView
+from mdit_closedloop.plugins.checkboxes.token_view import TokenView
 
 bp = breakpoint
 

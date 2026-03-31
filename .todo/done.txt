@@ -1,1 +1,3 @@
 x 2026-03-31 2026-03-31 @feature Parse contexts, #ags and projects` from inline items.
+x 2026-03-31 2026-03-31 @refactor Rename plugin.py / closedloop_plugin to tasklist or something
+x 2026-03-31 2026-03-31 @refactor Consider refactoring so each plugin is in a plugins/ directory to emulate mdit-plugins

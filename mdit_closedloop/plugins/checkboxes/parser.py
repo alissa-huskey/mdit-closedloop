@@ -2,13 +2,16 @@
 
 from markdown_it.token import Token
 
-from mdit_closedloop.tokens.token_view import TokenView
+from mdit_closedloop.plugins.checkboxes.token_view import TokenView
 
 bp = breakpoint
 
 
 class Parser():
-    """Parse the tokens."""
+    """Parse the tokens.
+
+    This does all of the heavy lifting for the checkbox_plugin.
+    """
 
     def __init__(self, tokens: list[TokenView] = None):
         """Instantiate the object."""

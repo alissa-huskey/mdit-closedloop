@@ -1,12 +1,12 @@
 from markdown_it import MarkdownIt
 
-from mdit_closedloop.plugin import closedloop_plugin
+from mdit_closedloop.plugins.checkboxes import checkboxes_plugin
 
 bp = breakpoint
 
 
-def test_plugin():
-    md = MarkdownIt().use(closedloop_plugin)
+def test_checkboxes_plugin():
+    md = MarkdownIt().use(checkboxes_plugin)
     tokens = md.parse("* [x] completed task")
 
     assert (
