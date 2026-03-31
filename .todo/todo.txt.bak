@@ -1,0 +1,14 @@
+2026-03-30 @checkboxes Consider setting mark in token.info or token.meta
+2026-03-30 @feature Consider writing a renderer for the new token types.
+2026-03-31 @taxonomy Come up with a name for soon/maybe/later/ideas other than "lists"
+2026-03-31 @feature Parse notes from task items
+(A) 2026-03-31 Integrate with closedloop app.
+(B) 2026-03-31 @feature Add a syntax for defining a project, specifically its slug
+x 2026-03-31 2026-03-31 @feature Parse contexts, #ags and projects` from inline items.
+(A) 2026-03-31 @refactor Rename plugin.py / closedloop_plugin to tasklist or something
+2026-03-31 @housekeeping Add usage to README or possibly to plugin docstrings
+2026-03-31 @refactor Consider refactoring so each plugin is in a plugins/ directory to emulate mdit-plugins
+2026-03-31 @parsing Labels: make sure they are not in backticks
+2026-03-31 @syntax project_rule: must contain some alpha characters to avoid catching "#22"
+2026-03-31 @parsing Labels: Consider removing space before and/or after
+2026-03-31 @parsing Labels: Handle label in the middle of the inline text
