@@ -1,4 +1,4 @@
-markdown-it-closedloop
+mdit-closedloop
 ======================
 
 A [markdown-it-py](https://github.com/executablebooks/markdown-it-py) plugin

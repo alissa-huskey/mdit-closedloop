@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "markdown-it-closedloop"
+name = "mdit-closedloop"
 version = "0.1.0"
 description = "Markdown-it plugin for closedloop."
 authors = ["Alissa Huskey <alissa.huskey@gmail.com>"]
