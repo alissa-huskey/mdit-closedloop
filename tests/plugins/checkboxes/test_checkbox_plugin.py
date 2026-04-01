@@ -21,14 +21,13 @@ def test_checkboxes_plugin():
 
     assert (
         tokens[3].type == "inline"
-        and len(tokens[3].children) == 4
+        and len(tokens[3].children) == 2
     )
 
     children = tokens[3].children
-    assert children[0].type == "checkbox_open"
-    assert children[1].type == "checkbox_mark"
-    assert children[2].type == "checkbox_close"
-    assert children[3].type == "text"
+    assert children[0].type == "checkbox"
+    assert children[1].type == "text"
 
-    assert children[1].content == "x"
-    assert children[3].content == "completed task"
+    assert children[0].content == "[x]"
+    assert children[0].meta["mark"] == "x"
+    assert children[1].content == "completed task"

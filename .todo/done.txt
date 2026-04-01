@@ -1,3 +1,7 @@
 x 2026-03-31 2026-03-31 @feature Parse contexts, #ags and projects` from inline items.
 x 2026-03-31 2026-03-31 @refactor Rename plugin.py / closedloop_plugin to tasklist or something
 x 2026-03-31 2026-03-31 @refactor Consider refactoring so each plugin is in a plugins/ directory to emulate mdit-plugins
+x 2026-03-31 2026-03-31 Integrate with closedloop app.
+x 2026-03-31 2026-03-31 @taxonomy Come up with a name for soon/maybe/later/ideas other than "lists"
+x 2026-03-31 2026-03-30 @checkboxes Consider setting mark in token.info or token.meta
+x 2026-03-31 2026-03-31 @refactor checkbox_plugin: add proper nesting values to tokens or combine into one token.

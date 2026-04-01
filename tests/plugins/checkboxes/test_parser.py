@@ -19,44 +19,32 @@ def test_checkboxes_parser_todoify(md):
     view.is_todo()   # needed here because that sets the mark; should refactor
 
     parser = Parser()
-    parser.todoify(view)
+    parser.todoify_list_item(view)
 
     children = view.token.children
 
-    assert len(children) == 4
-    assert children[0].type == "checkbox_open"
-    assert children[1].type == "checkbox_mark"
-    assert children[2].type == "checkbox_close"
-    assert children[3].type == "text"
+    assert len(children) == 2
+    assert children[0].type == "checkbox"
+    assert children[1].type == "text"
 
-    assert children[1].content == "x"
-    assert children[3].content == "I did it"
+    assert children[0].content == "[x]"
+    assert children[0].meta["mark"] == "x"
+    assert children[1].content == "I did it"
 
 
-def test_checkboxes_parser_begin_checkbox():
+def test_checkboxes_parser_checkbox_token():
     """
     GIVEN: A Parser object
-    WHEN: .begin_checkbox() is called
-    THEN: it should return a checkbox_open token
+    WHEN: .checkbox_token() is called with a single character mark
+    THEN: it should return a checkbox token
+    AND: the token metadata should contain the mark
     """
     parser = Parser()
-    token = parser.begin_checkbox()
+    token = parser.checkbox_token("X")
 
-    assert token.type == "checkbox_open"
-    assert token.content == "["
-
-
-def test_checkboxes_parser_end_checkbox():
-    """
-    GIVEN: A Parser object
-    WHEN: .end_checkbox() is called
-    THEN: it should return a checkbox_close token
-    """
-    parser = Parser()
-    token = parser.end_checkbox()
-
-    assert token.type == "checkbox_close"
-    assert token.content == "]"
+    assert token.type == "checkbox"
+    assert token.content == "[X]"
+    assert token.meta["mark"] == "X"
 
 
 def test_checkboxes_parser_parse(md):
@@ -87,17 +75,42 @@ def test_checkboxes_parser_parse(md):
 
     assert (
         tokens[3].type == "inline"
-        and len(tokens[3].children) == 4
+        and len(tokens[3].children) == 2
     )
 
     children = tokens[3].children
-    assert children[0].type == "checkbox_open"
-    assert children[1].type == "checkbox_mark"
-    assert children[2].type == "checkbox_close"
-    assert children[3].type == "text"
+    assert children[0].type == "checkbox"
+    assert children[1].type == "text"
 
-    assert children[1].content == "x"
-    assert children[3].content == "I did it"
+    assert children[0].content == "[x]"
+    assert children[0].meta["mark"] == "x"
+    assert children[1].content == "I did it"
+
+
+def test_checkboxes_parser_classify_ancestors(md):
+    """
+    GIVEN: A Parser object
+    AND: A list of TokenView objects that contain a todo list item
+    WHEN: .classify_ancestors() is called with that the inline token of a todo item
+    THEN: the class "task-list-item" should be added to the parent list_item token
+    AND: the class "contains-task-list" should be added to the parent
+         bulleted_list or numbered_list
+    """
+    tokens = TokenView.from_tokens(md.parse("* [.] I am doing it"))
+    #  view.is_todo()   # needed here because that sets the mark; should refactor
+
+    parser = Parser()
+    parser.classify_ancestors(tokens[3])
+
+    assert (
+        tokens[0].type == "bullet_list_open"
+        and tokens[0].token.attrGet("class") == "contains-task-list"
+    )
+
+    assert (
+        tokens[1].type == "list_item_open"
+        and tokens[1].token.attrGet("class") == "task-list-item"
+    )
 
 
 #  def test_checkboxes_parser_():
